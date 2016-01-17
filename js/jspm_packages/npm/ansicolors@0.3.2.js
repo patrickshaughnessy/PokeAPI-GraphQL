@@ -1,0 +1,1 @@
+module.exports = require("npm:ansicolors@0.3.2/ansicolors.js");

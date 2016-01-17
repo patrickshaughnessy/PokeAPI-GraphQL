@@ -1,0 +1,40 @@
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type Pokedex implements Node {
+  id: ID!
+  created: String
+  modified: String
+  name: String
+  pokemon(start: Int!, number: Int!): PokemonConnection
+  resource_uri: String
+}
+
+type Pokemon implements Node {
+  id: ID!
+  name: String
+}
+
+type PokemonConnection {
+  pageInfo: PageInfo!
+  edges: [PokemonEdge]
+}
+
+type PokemonEdge {
+  node: Pokemon
+  cursor: String!
+}
+
+type Query {
+  node(id: ID!): Node
+  pokedex: Pokedex
+  pokemon(number: Int): Pokemon
+}

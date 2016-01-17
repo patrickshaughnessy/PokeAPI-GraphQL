@@ -1,0 +1,1 @@
+module.exports = require("npm:esnextguardian@1.2.0/lib/index.js");
