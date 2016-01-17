@@ -4,6 +4,7 @@ import favicon from 'serve-favicon';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 
 import {Schema} from "./data/schema";
 import graphQLHTTP from "express-graphql";
@@ -16,14 +17,14 @@ const GRAPHQL_PORT = 8080;
 
 // Expose a GraphQL endpoint
 var graphQLServer = express();
-graphQLServer.use('/', graphQLHTTP({
+graphQLServer.use('/graphql', graphQLHTTP({
   graphiql: true,
   pretty: true,
   schema: Schema,
 }));
-graphQLServer.listen(GRAPHQL_PORT, () => console.log(
-  `GraphQL Server is now running on http://localhost:${GRAPHQL_PORT}`
-));
+// graphQLServer.listen(GRAPHQL_PORT, () => console.log(
+//   `GraphQL Server is now running on http://localhost:${GRAPHQL_PORT}`
+// ));
 
 // Serve the Relay app
 var compiler = webpack({
@@ -42,10 +43,11 @@ var compiler = webpack({
 });
 var app = new WebpackDevServer(compiler, {
   contentBase: '/public/',
-  proxy: {'/graphql': `http://localhost:${GRAPHQL_PORT}`},
+  // proxy: {'/graphql': `http://localhost:${GRAPHQL_PORT}`},
   publicPath: '/js/',
   stats: {colors: true}
 });
+
 
 // regular express app setup stuff:
 
@@ -55,24 +57,32 @@ var app = new WebpackDevServer(compiler, {
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(cors());
+
+
+// import routes from './routes/index';
+// app.use('/', routes);
 
 // Serve static resources
-app.use('/', express.static(path.resolve(__dirname, 'public')));
+// app.use('/', express.static(path.resolve(__dirname, 'public')));
 
-
-import routes from './routes/index';
-app.use('/', routes);
+app.use('/', graphQLHTTP({
+  graphiql: true,
+  pretty: true,
+  schema: Schema,
+}));
 
 // catch 404 and forward to error handler
-// app.use((req, res, next) => {
-//   let err = new Error('Not Found');
-//   err.status = 404;
-//   next(err);
-// });
+app.use((req, res, next) => {
+  let err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
 
 // error handlers
 
