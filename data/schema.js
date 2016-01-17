@@ -84,7 +84,47 @@ let pokemonType = new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLID),
       resolve: (obj) => 1
     },
-    name: {type: GraphQLString}
+    abilities: {
+      type: abilityConnection,
+      args: {
+        ...connectionArgs
+      },
+      resolve: (pokemon, args) => {
+        return connectionFromPromisedArray(async function() {
+          let abilitiesArray = [];
+          console.log('pokemon ablities', pokemon.abilities)
+          for (let i = 0; i < pokemon.abilities.length; i++){
+            let abilityURL = `http://pokeapi.co/${pokemon.abilities[i].resource_uri}`;
+            let ability = await function(){
+              let ability;
+              return new Promise((resolve, reject) => {
+                request(abilityURL, (err, resp, body) => {
+                  ability = JSON.parse(body);
+                  resolve(ability);
+                });
+              });
+            }();
+            abilitiesArray.push(ability);
+          }
+          return abilitiesArray;
+        }(), args)
+      }
+    },
+    name: {type: GraphQLString},
+
+  }),
+  interfaces: [nodeInterface]
+})
+
+let abilityType = new GraphQLObjectType({
+  name: 'Ability',
+  fields: () => ({
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    name: {type: GraphQLString},
+    created: {type: GraphQLString},
+    modified: {type: GraphQLString},
+    description: {type: GraphQLString},
+    resource_uri: {type: GraphQLString}
   }),
   interfaces: [nodeInterface]
 })
@@ -92,9 +132,8 @@ let pokemonType = new GraphQLObjectType({
 let {connectionType: pokemonConnection} =
   connectionDefinitions({name: 'Pokemon', nodeType: pokemonType})
 
-// let {connectionType: personConnection} =
-//   connectionDefinitions({name: 'Person', nodeType: personType})
-
+let {connectionType: abilityConnection} =
+  connectionDefinitions({name: 'Ability', nodeType: abilityType})
 
 let queryType = new GraphQLObjectType({
   name: 'Query',
@@ -116,10 +155,7 @@ let queryType = new GraphQLObjectType({
     pokemon: {
       type: pokemonType,
       args: {
-        number: {
-          type: GraphQLInt,
-          resolve: (pokemon) => pokemon.resource_uri.split('/').pop()
-        }
+        number: {type: new GraphQLNonNull(GraphQLInt)}
       },
       resolve: (_, args) => {
         let pokemon;
