@@ -1,1 +1,0 @@
-module.exports = require("npm:babel-relay-plugin@0.6.0/lib/getBabelRelayPlugin.js");

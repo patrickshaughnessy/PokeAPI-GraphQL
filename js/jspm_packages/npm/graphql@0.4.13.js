@@ -1,1 +1,0 @@
-module.exports = require("npm:graphql@0.4.13/index");

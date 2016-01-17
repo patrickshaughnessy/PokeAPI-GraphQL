@@ -1,1 +1,0 @@
-module.exports = require("npm:react-static-container@1.0.0/index.js");

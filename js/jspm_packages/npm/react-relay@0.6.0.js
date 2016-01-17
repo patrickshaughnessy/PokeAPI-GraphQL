@@ -1,1 +1,0 @@
-module.exports = require("npm:react-relay@0.6.0/lib/Relay.js");

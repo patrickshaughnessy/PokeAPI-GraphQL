@@ -1,1 +1,0 @@
-module.exports = require("npm:diff@2.2.1/lib");
