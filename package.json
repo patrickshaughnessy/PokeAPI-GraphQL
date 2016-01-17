@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "setup": "npm i && jspm i",
+    "setup": "npm i",
     "start": "./node_modules/.bin/babel-node app.js",
     "update-schema": "babel-node ./scripts/updateSchema.js"
   },
