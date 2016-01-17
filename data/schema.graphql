@@ -17,6 +17,26 @@ type AbilityEdge {
   cursor: String!
 }
 
+type Description implements Node {
+  created: String
+  description: String
+  id: ID!
+  modified: String
+  name: String
+  pokemon: Pokemon
+  resource_uri: String
+}
+
+type DescriptionConnection {
+  pageInfo: PageInfo!
+  edges: [DescriptionEdge]
+}
+
+type DescriptionEdge {
+  node: Description
+  cursor: String!
+}
+
 interface Node {
   id: ID!
 }
@@ -40,6 +60,11 @@ type Pokedex implements Node {
 type Pokemon implements Node {
   id: ID!
   abilities(after: String, first: Int, before: String, last: Int): AbilityConnection
+  attack: Int
+  catch_rate: Int
+  created: String
+  defense: Int
+  descriptions(after: String, first: Int, before: String, last: Int): DescriptionConnection
   name: String
 }
 

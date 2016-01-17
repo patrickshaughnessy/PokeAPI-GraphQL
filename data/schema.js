@@ -110,6 +110,35 @@ let pokemonType = new GraphQLObjectType({
         }(), args)
       }
     },
+    attack: {type: GraphQLInt},
+    catch_rate: {type: GraphQLInt},
+    created: {type: GraphQLString},
+    defense: {type: GraphQLInt},
+    descriptions: {
+      type: descriptionConnection,
+      args: {
+        ...connectionArgs
+      },
+      resolve: (pokemon, args) => {
+        return connectionFromPromisedArray(async function() {
+          let descriptionsArray = [];
+          for (let i = 0; i < pokemon.descriptions.length; i++){
+            let descriptionURL = `http://pokeapi.co/${pokemon.descriptions[i].resource_uri}`;
+            let description = await function(){
+              let description;
+              return new Promise((resolve, reject) => {
+                request(descriptionURL, (err, resp, body) => {
+                  description = JSON.parse(body);
+                  resolve(description);
+                });
+              });
+            }();
+            descriptionsArray.push(description);
+          }
+          return descriptionsArray;
+        }(), args)
+      }
+    },
     name: {type: GraphQLString},
 
   }),
@@ -129,11 +158,53 @@ let abilityType = new GraphQLObjectType({
   interfaces: [nodeInterface]
 })
 
+let descriptionType = new GraphQLObjectType({
+  name: 'Description',
+  fields: () => ({
+    created: {type: GraphQLString},
+    description: {type: GraphQLString},
+    // games: {
+    //   type: gameConnection,
+    //   args: {
+    //     ...connectionArgs
+    //   },
+    //   resolve: (description, args) => {
+    //     // make game connection
+    //     return
+    //   }
+    // },
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    modified: {type: GraphQLString},
+    name: {type: GraphQLString},
+    pokemon: {
+      type: pokemonType,
+      resolve: (pokeinfo) => {
+        let pokemon;
+        let url = `http://pokeapi.co/${pokeinfo.pokemon.resource_uri}`;
+        return new Promise(function(resolve, reject){
+          request(url, function(err, resp, body){
+            pokemon = JSON.parse(body);
+            resolve(pokemon);
+          })
+        })
+      }
+    },
+    resource_uri: {type: GraphQLString}
+  }),
+  interfaces: [nodeInterface]
+})
+
 let {connectionType: pokemonConnection} =
   connectionDefinitions({name: 'Pokemon', nodeType: pokemonType})
 
 let {connectionType: abilityConnection} =
   connectionDefinitions({name: 'Ability', nodeType: abilityType})
+
+let {connectionType: descriptionConnection} =
+  connectionDefinitions({name: 'Description', nodeType: descriptionType})
+
+// let {connectionType: gameConnection} =
+//   connectionDefinitions({name: 'Game', nodeType: gameType})
 
 let queryType = new GraphQLObjectType({
   name: 'Query',
