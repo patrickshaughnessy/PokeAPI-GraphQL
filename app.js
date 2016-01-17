@@ -27,28 +27,28 @@ graphQLServer.use('/graphql', graphQLHTTP({
 // ));
 
 // Serve the Relay app
-var compiler = webpack({
-  entry: path.resolve(__dirname, 'js', 'main.js'),
-  module: {
-    loaders: [
-      {
-        exclude: /node_modules/,
-        loader: 'babel',
-        query: {stage: 0, plugins: ['./build/babelRelayPlugin']},
-        test: /\.js$/,
-      }
-    ]
-  },
-  output: {filename: 'main.js', path: '/'}
-});
-var app = new WebpackDevServer(compiler, {
-  contentBase: '/public/',
-  // proxy: {'/graphql': `http://localhost:${GRAPHQL_PORT}`},
-  publicPath: '/js/',
-  stats: {colors: true}
-});
+// var compiler = webpack({
+//   entry: path.resolve(__dirname, 'js', 'main.js'),
+//   module: {
+//     loaders: [
+//       {
+//         exclude: /node_modules/,
+//         loader: 'babel',
+//         query: {stage: 0, plugins: ['./build/babelRelayPlugin']},
+//         test: /\.js$/,
+//       }
+//     ]
+//   },
+//   output: {filename: 'main.js', path: '/'}
+// });
+// var app = new WebpackDevServer(compiler, {
+//   contentBase: '/public/',
+//   // proxy: {'/graphql': `http://localhost:${GRAPHQL_PORT}`},
+//   publicPath: '/js/',
+//   stats: {colors: true}
+// });
 
-
+var app = express();
 // regular express app setup stuff:
 
 // view engine setup
