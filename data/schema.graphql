@@ -20,6 +20,7 @@ type AbilityEdge {
 type Description implements Node {
   created: String
   description: String
+  games(after: String, first: Int, before: String, last: Int): GameConnection
   id: ID!
   modified: String
   name: String
@@ -34,6 +35,26 @@ type DescriptionConnection {
 
 type DescriptionEdge {
   node: Description
+  cursor: String!
+}
+
+type Game implements Node {
+  created: String
+  generation: Int
+  id: ID!
+  modified: String
+  name: String
+  release_year: Int
+  resource_uri: String
+}
+
+type GameConnection {
+  pageInfo: PageInfo!
+  edges: [GameEdge]
+}
+
+type GameEdge {
+  node: Game
   cursor: String!
 }
 

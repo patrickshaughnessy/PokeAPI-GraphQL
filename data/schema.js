@@ -158,21 +158,45 @@ let abilityType = new GraphQLObjectType({
   interfaces: [nodeInterface]
 })
 
+// RESOLVE FUNCTION FOR ARRAYS IN POKEMON TYPE
+function generateResolvedPromisedArray(obj, category, type){
+  console.log('inside generate', 'obj', obj, 'category', category, 'type', type)
+  return async function() {
+    let categoryArray = [];
+    for (let i = 0; i < obj[category].length; i++){
+      let typeURL = `http://pokeapi.co/${obj[category][i].resource_uri}`;
+      console.log('typeURL', typeURL)
+      let type = await function(){
+        let type;
+        return new Promise((resolve, reject) => {
+          request(typeURL, (err, resp, body) => {
+            type = JSON.parse(body);
+            resolve(type);
+          });
+        });
+      }();
+      categoryArray.push(type);
+    }
+    return categoryArray;
+  }()
+}
+
+
+
 let descriptionType = new GraphQLObjectType({
   name: 'Description',
   fields: () => ({
     created: {type: GraphQLString},
     description: {type: GraphQLString},
-    // games: {
-    //   type: gameConnection,
-    //   args: {
-    //     ...connectionArgs
-    //   },
-    //   resolve: (description, args) => {
-    //     // make game connection
-    //     return
-    //   }
-    // },
+    games: {
+      type: gameConnection,
+      args: {
+        ...connectionArgs
+      },
+      resolve: (obj, args) => {
+        return connectionFromPromisedArray(generateResolvedPromisedArray(obj, 'games', 'game'), args);
+      }
+    },
     id: {type: new GraphQLNonNull(GraphQLID)},
     modified: {type: GraphQLString},
     name: {type: GraphQLString},
@@ -194,6 +218,20 @@ let descriptionType = new GraphQLObjectType({
   interfaces: [nodeInterface]
 })
 
+let gameType = new GraphQLObjectType({
+  name: 'Game',
+  fields: () => ({
+    created: {type: GraphQLString},
+    generation: {type: GraphQLInt},
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    modified: {type: GraphQLString},
+    name: {type: GraphQLString},
+    release_year: {type: GraphQLInt},
+    resource_uri: {type: GraphQLString}
+  }),
+  interfaces: [nodeInterface]
+})
+
 let {connectionType: pokemonConnection} =
   connectionDefinitions({name: 'Pokemon', nodeType: pokemonType})
 
@@ -203,8 +241,11 @@ let {connectionType: abilityConnection} =
 let {connectionType: descriptionConnection} =
   connectionDefinitions({name: 'Description', nodeType: descriptionType})
 
-// let {connectionType: gameConnection} =
-//   connectionDefinitions({name: 'Game', nodeType: gameType})
+let {connectionType: gameConnection} =
+  connectionDefinitions({name: 'Game', nodeType: gameType})
+
+
+
 
 let queryType = new GraphQLObjectType({
   name: 'Query',
