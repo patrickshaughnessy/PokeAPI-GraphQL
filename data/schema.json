@@ -1959,7 +1959,7 @@
               "deprecationReason": null
             },
             {
-              "name": "resource_uri",
+              "name": "pokemon",
               "description": null,
               "args": [],
               "type": {

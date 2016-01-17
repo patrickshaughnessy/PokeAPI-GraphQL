@@ -60,7 +60,7 @@ type EggEdge {
 type Evolution {
   level: Int
   method: String
-  resource_uri: Pokemon
+  pokemon: Pokemon
   to: String
 }
 

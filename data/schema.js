@@ -81,7 +81,7 @@ let pokemonType = new GraphQLObjectType({
   fields: () => ({
     id: {
       type: new GraphQLNonNull(GraphQLID),
-      resolve: (pokemon) => pokemon.national_id;
+      resolve: (pokemon) => pokemon.national_id
     },
     abilities: {
       type: abilityConnection,
